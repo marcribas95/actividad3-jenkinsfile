@@ -26,7 +26,7 @@ services:
       - JENKINS_URL=http://jenkins:8080
       - JENKINS_AGENT_NAME=docker-agent
       - JENKINS_AGENT_WORKDIR=/home/jenkins/agent
-      - JENKINS_SECRET=1a8d64a6dcd6901cac35e7200969b7215d721447b646028f0fe96f492c6cc71b
+      - JENKINS_SECRET=1a8d64a6dcd6901cac35e7200969b7215d721447b646028f0fe96f492c6cc71b # replace key for the one when creates the agent on jenkins master
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     networks:
@@ -40,7 +40,9 @@ services:
     ports:
       - "5000:5000"
     volumes:
-      - ./app:/opt/calc/app
+      - ./app:/app/app
+      - ./tests:/app/tests
+      - ./tests-reports:/app/tests-reports
     command: python -m flask run --host=0.0.0.0
     networks:
       - jenkins
