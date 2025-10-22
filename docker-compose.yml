@@ -40,8 +40,6 @@ services:
     ports:
       - "5000:5000"
     volumes:
-      - ./app:/app/app
-      - ./tests:/app/tests
       - ./tests-reports:/app/tests-reports
     command: python -m flask run --host=0.0.0.0
     networks:
