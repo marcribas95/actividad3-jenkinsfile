@@ -24,7 +24,7 @@ build:
 test-unit:
 	@echo "🧪 Ejecutando pruebas unitarias..."
 	mkdir -p $(REPORTS_DIR)
-	docker compose run --rm calc-api sh -c "python -m pytest /app/tests/unit/calc_test.py /app/tests/unit/util_test.py -v --tb=short --junit-xml=/app/tests-reports/test-results-unit.xml"
+	docker compose run --rm calc-api sh -c "python -m pytest /app/tests/unit/ -v --tb=short --junit-xml=/app/tests-reports/test-results-unit.xml"
 	@echo "✓ Pruebas unitarias completadas"
 
 test-api:
@@ -33,7 +33,7 @@ test-api:
 	docker compose up -d calc-api
 	@echo "Esperando que la API esté lista..."
 	sleep 5
-	docker compose run --rm calc-api sh -c "python -m pytest /app/tests/rest/api_test_local.py -v --tb=short --junit-xml=/app/tests-reports/test-results-api.xml"
+	docker compose run --rm calc-api sh -c "python -m pytest /app/tests/rest/ -v --tb=short --junit-xml=/app/tests-reports/test-results-api.xml"
 	docker compose stop calc-api
 	@echo "✓ Pruebas de API completadas"
 
