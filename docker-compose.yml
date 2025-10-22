@@ -1,0 +1,84 @@
+version: '3.8'
+
+services:
+  jenkins:
+    image: jenkins/jenkins:lts
+    container_name: jenkins-master
+    privileged: true
+    user: root
+    ports:
+      - "8080:8080"
+      - "50000:50000"
+    volumes:
+      - jenkins_home:/var/jenkins_home
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      - JAVA_OPTS=-Djenkins.install.runSetupWizard=false
+    networks:
+      - jenkins
+
+  jenkins-agent:
+    image: jenkins/inbound-agent:latest
+    container_name: jenkins-agent-docker
+    privileged: true
+    user: root
+    environment:
+      - JENKINS_URL=http://jenkins:8080
+      - JENKINS_AGENT_NAME=docker-agent
+      - JENKINS_AGENT_WORKDIR=/home/jenkins/agent
+      - JENKINS_SECRET=1a8d64a6dcd6901cac35e7200969b7215d721447b646028f0fe96f492c6cc71b
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - jenkins
+    depends_on:
+      - jenkins
+
+  calc-api:
+    build: .
+    container_name: calc-api
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./app:/opt/calc/app
+    command: python -m flask run --host=0.0.0.0
+    networks:
+      - jenkins
+    environment:
+      - FLASK_APP=app.api
+      - FLASK_ENV=development
+
+  calc-web:
+    image: nginx:alpine
+    container_name: calc-web
+    ports:
+      - "8000:80"
+    volumes:
+      - ./web:/usr/share/nginx/html:ro
+      - ./web/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    networks:
+      - jenkins
+    depends_on:
+      - calc-api
+
+  cypress-e2e:
+    image: cypress/included:latest
+    container_name: cypress-e2e
+    working_dir: /e2e
+    volumes:
+      - ./tests/e2e:/e2e
+    networks:
+      - jenkins
+    depends_on:
+      - calc-web
+      - calc-api
+    environment:
+      - CYPRESS_baseUrl=http://calc-web
+    entrypoint: cypress run
+
+volumes:
+  jenkins_home:
+
+networks:
+  jenkins:
+    driver: bridge

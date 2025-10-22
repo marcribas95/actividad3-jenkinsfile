@@ -1,0 +1,24 @@
+Container calc-api  Creating
+Container calc-api  Created
+Container calc-web  Creating
+Container calc-web  Created
+Container calc-api  Starting
+Container calc-api  Started
+Container calc-web  Starting
+Container calc-web  Started
+Container calc-api  Running
+Container calc-web  Running
+[13:29:13]  Verifying Cypress can run /root/.cache/Cypress/15.5.0/Cypress [started]
+[13:29:15]  Verifying Cypress can run /root/.cache/Cypress/15.5.0/Cypress [COMPLETED]
+
+DevTools listening on ws://127.0.0.1:43283/devtools/browser/e7486288-6e90-419e-8937-9951c61fa89a
+[31mCould not find a Cypress configuration file in this folder: [94m/e2e[39m[31m[39m
+Container calc-web  Stopping
+Container calc-web  Stopped
+Container calc-api  Stopping
+Container calc-api  Stopped
+Going to remove calc-web, calc-api
+Container calc-api  Removing
+Container calc-web  Removing
+Container calc-web  Removed
+Container calc-api  Removed

@@ -1,0 +1,38 @@
+============================= test session starts ==============================
+platform linux -- Python 3.12.11, pytest-8.4.2, pluggy-1.6.0 -- /home/marc/Escritorio/MasterDevOps/Entornos Integracion y Entrega Continua/actividad3-MarcRibasGonzalez/.venv/bin/python
+cachedir: .pytest_cache
+metadata: {'Python': '3.12.11', 'Platform': 'Linux-6.8.0-85-generic-x86_64-with-glibc2.35', 'Packages': {'pytest': '8.4.2', 'pluggy': '1.6.0'}, 'Plugins': {'metadata': '3.1.1', 'html': '4.1.1'}}
+rootdir: /home/marc/Escritorio/MasterDevOps/Entornos Integracion y Entrega Continua/actividad3-MarcRibasGonzalez
+plugins: metadata-3.1.1, html-4.1.1
+collecting ... collected 18 items
+
+tests/unit/calc_test.py::TestCalculate::test_add_method_fails_with_nan_parameter PASSED [  5%]
+tests/unit/calc_test.py::TestCalculate::test_add_method_returns_correct_result PASSED [ 11%]
+tests/unit/calc_test.py::TestCalculate::test_divide_method_fails_with_division_by_zero PASSED [ 16%]
+tests/unit/calc_test.py::TestCalculate::test_divide_method_fails_with_nan_parameter PASSED [ 22%]
+tests/unit/calc_test.py::TestCalculate::test_divide_method_returns_correct_result PASSED [ 27%]
+tests/unit/calc_test.py::TestCalculate::test_log10_method_fails_with_nan_parameter PASSED [ 33%]
+tests/unit/calc_test.py::TestCalculate::test_log10_method_fails_with_non_positive_number PASSED [ 38%]
+tests/unit/calc_test.py::TestCalculate::test_log10_method_returns_correct_result PASSED [ 44%]
+tests/unit/calc_test.py::TestCalculate::test_multiply_method_returns_correct_result PASSED [ 50%]
+tests/unit/calc_test.py::TestCalculate::test_power_method_fails_with_nan_parameter PASSED [ 55%]
+tests/unit/calc_test.py::TestCalculate::test_power_method_returns_correct_result PASSED [ 61%]
+tests/unit/calc_test.py::TestCalculate::test_sqrt_method_fails_with_nan_parameter PASSED [ 66%]
+tests/unit/calc_test.py::TestCalculate::test_sqrt_method_fails_with_negative_number PASSED [ 72%]
+tests/unit/calc_test.py::TestCalculate::test_sqrt_method_returns_correct_result PASSED [ 77%]
+tests/unit/calc_test.py::TestCalculate::test_substract_method_fails_with_nan_parameter PASSED [ 83%]
+tests/unit/calc_test.py::TestCalculate::test_substract_method_returns_correct_result PASSED [ 88%]
+tests/unit/util_test.py::TestUtil::test_convert_to_number_correct_param PASSED [ 94%]
+tests/unit/util_test.py::TestUtil::test_convert_to_number_invalid_type PASSED [100%]
+
+=============================== warnings summary ===============================
+tests/unit/calc_test.py:12
+  /home/marc/Escritorio/MasterDevOps/Entornos Integracion y Entrega Continua/actividad3-MarcRibasGonzalez/tests/unit/calc_test.py:12: PytestUnknownMarkWarning: Unknown pytest.mark.unit - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    @pytest.mark.unit
+
+../repo-pruebas-automatizadas/tests/unit/util_test.py:7
+  /home/marc/Escritorio/MasterDevOps/Entornos Integracion y Entrega Continua/repo-pruebas-automatizadas/tests/unit/util_test.py:7: PytestUnknownMarkWarning: Unknown pytest.mark.unit - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+- generated xml file: /home/marc/Escritorio/MasterDevOps/Entornos Integracion y Entrega Continua/actividad3-MarcRibasGonzalez/tests-reports/test-results-unit-20251022_141344.xml -
+======================== 18 passed, 2 warnings in 0.03s ========================

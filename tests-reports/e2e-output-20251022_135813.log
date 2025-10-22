@@ -1,0 +1,14 @@
+no such service: calc-api
+no such service: cypress-e2e
+Container jenkins-agent-docker  Stopping
+Container jenkins-agent-docker  Stopping
+Container jenkins-agent-docker  Stopped
+Container jenkins-agent-docker  Removing
+Container jenkins-agent-docker  Removed
+Container jenkins-master  Stopping
+Container jenkins-master  Stopping
+Container jenkins-master  Stopped
+Container jenkins-master  Removing
+Container jenkins-master  Removed
+Network actividad3-marcribasgonzalez_jenkins  Removing
+Network actividad3-marcribasgonzalez_jenkins  Removed

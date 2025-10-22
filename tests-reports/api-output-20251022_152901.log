@@ -1,0 +1,35 @@
+============================= test session starts ==============================
+platform linux -- Python 3.12.11, pytest-8.4.2, pluggy-1.6.0 -- /home/marc/Escritorio/MasterDevOps/Entornos Integracion y Entrega Continua/actividad3-MarcRibasGonzalez/.venv/bin/python
+cachedir: .pytest_cache
+metadata: {'Python': '3.12.11', 'Platform': 'Linux-6.8.0-85-generic-x86_64-with-glibc2.35', 'Packages': {'pytest': '8.4.2', 'pluggy': '1.6.0'}, 'Plugins': {'metadata': '3.1.1', 'html': '4.1.1'}}
+rootdir: /home/marc/Escritorio/MasterDevOps/Entornos Integracion y Entrega Continua/actividad3-MarcRibasGonzalez
+plugins: metadata-3.1.1, html-4.1.1
+collecting ... collected 19 items
+
+tests/rest/api_test_local.py::TestApiLocal::test_api_add PASSED          [  5%]
+tests/rest/api_test_local.py::TestApiLocal::test_api_add_invalid_parameter PASSED [ 10%]
+tests/rest/api_test_local.py::TestApiLocal::test_api_divide PASSED       [ 15%]
+tests/rest/api_test_local.py::TestApiLocal::test_api_divide_by_zero PASSED [ 21%]
+tests/rest/api_test_local.py::TestApiLocal::test_api_divide_invalid_parameter PASSED [ 26%]
+tests/rest/api_test_local.py::TestApiLocal::test_api_hello PASSED        [ 31%]
+tests/rest/api_test_local.py::TestApiLocal::test_api_log10 PASSED        [ 36%]
+tests/rest/api_test_local.py::TestApiLocal::test_api_log10_invalid_parameter PASSED [ 42%]
+tests/rest/api_test_local.py::TestApiLocal::test_api_log10_negative_number PASSED [ 47%]
+tests/rest/api_test_local.py::TestApiLocal::test_api_log10_zero PASSED   [ 52%]
+tests/rest/api_test_local.py::TestApiLocal::test_api_multiply PASSED     [ 57%]
+tests/rest/api_test_local.py::TestApiLocal::test_api_multiply_invalid_parameter PASSED [ 63%]
+tests/rest/api_test_local.py::TestApiLocal::test_api_power PASSED        [ 68%]
+tests/rest/api_test_local.py::TestApiLocal::test_api_power_invalid_parameter PASSED [ 73%]
+tests/rest/api_test_local.py::TestApiLocal::test_api_sqrt PASSED         [ 78%]
+tests/rest/api_test_local.py::TestApiLocal::test_api_sqrt_invalid_parameter PASSED [ 84%]
+tests/rest/api_test_local.py::TestApiLocal::test_api_sqrt_negative_number PASSED [ 89%]
+tests/rest/api_test_local.py::TestApiLocal::test_api_substract PASSED    [ 94%]
+tests/rest/api_test_local.py::TestApiLocal::test_api_substract_invalid_parameter PASSED [100%]
+
+=============================== warnings summary ===============================
+../repo-pruebas-automatizadas/tests/rest/api_test_local.py:9
+  /home/marc/Escritorio/MasterDevOps/Entornos Integracion y Entrega Continua/repo-pruebas-automatizadas/tests/rest/api_test_local.py:9: PytestUnknownMarkWarning: Unknown pytest.mark.api - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+- generated xml file: /home/marc/Escritorio/MasterDevOps/Entornos Integracion y Entrega Continua/actividad3-MarcRibasGonzalez/tests-reports/test-results-api-20251022_152901.xml -
+======================== 19 passed, 1 warning in 0.07s =========================

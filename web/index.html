@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .calculator {
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        .input-group {
+            margin: 15px 0;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #666;
+        }
+        input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        .buttons {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin: 20px 0;
+        }
+        button {
+            padding: 15px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            background-color: #4CAF50;
+            color: white;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        button.single-op {
+            background-color: #2196F3;
+        }
+        button.single-op:hover {
+            background-color: #0b7dda;
+        }
+        #result-area {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #e8f5e9;
+            border-left: 4px solid #4CAF50;
+            border-radius: 5px;
+            font-size: 18px;
+            min-height: 20px;
+        }
+        #result-area.error {
+            background-color: #ffebee;
+            border-left-color: #f44336;
+        }
+        #history-log {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #f5f5f5;
+            border-radius: 5px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        #history-log h3 {
+            margin-top: 0;
+            color: #666;
+        }
+        .history-item {
+            padding: 5px;
+            margin: 5px 0;
+            background-color: white;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body>
+    <div class="calculator">
+        <h1>Calculator</h1>
+        
+        <div class="input-group">
+            <label for="in-op1">Operando 1:</label>
+            <input type="number" id="in-op1" value="0" step="any">
+        </div>
+        
+        <div class="input-group">
+            <label for="in-op2">Operando 2:</label>
+            <input type="number" id="in-op2" value="0" step="any">
+        </div>
+        
+        <div class="buttons">
+            <button id="button-add">Sumar (+)</button>
+            <button id="button-substract">Restar (-)</button>
+            <button id="button-multiply">Multiplicar (×)</button>
+            <button id="button-divide">Dividir (÷)</button>
+            <button id="button-power">Potencia (^)</button>
+            <button id="button-sqrt" class="single-op">Raíz Cuadrada (√)</button>
+            <button id="button-log10" class="single-op">Log10</button>
+        </div>
+        
+        <div id="result-area">Result: </div>
+        
+        <div id="history-log">
+            <h3>Historial</h3>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = '';  // Usar rutas relativas gracias al proxy de nginx
+        
+        const op1Input = document.getElementById('in-op1');
+        const op2Input = document.getElementById('in-op2');
+        const resultArea = document.getElementById('result-area');
+        const historyLog = document.getElementById('history-log');
+        
+        function addToHistory(operation, result) {
+            const historyItem = document.createElement('div');
+            historyItem.className = 'history-item';
+            historyItem.textContent = operation + ' = ' + result;
+            historyLog.appendChild(historyItem);
+        }
+        
+        function showResult(result, isError = false) {
+            resultArea.textContent = 'Result: ' + result;
+            if (isError) {
+                resultArea.classList.add('error');
+            } else {
+                resultArea.classList.remove('error');
+            }
+        }
+        
+        function makeRequest(endpoint, operation) {
+            fetch(API_URL + endpoint)
+                .then(response => response.text())
+                .then(data => {
+                    showResult(data);
+                    addToHistory(operation, data);
+                })
+                .catch(error => {
+                    showResult('Error: ' + error.message, true);
+                });
+        }
+        
+        document.getElementById('button-add').addEventListener('click', () => {
+            const op1 = op1Input.value;
+            const op2 = op2Input.value;
+            makeRequest(`/calc/add/${op1}/${op2}`, `${op1} + ${op2}`);
+        });
+        
+        document.getElementById('button-substract').addEventListener('click', () => {
+            const op1 = op1Input.value;
+            const op2 = op2Input.value;
+            makeRequest(`/calc/substract/${op1}/${op2}`, `${op1} - ${op2}`);
+        });
+        
+        document.getElementById('button-multiply').addEventListener('click', () => {
+            const op1 = op1Input.value;
+            const op2 = op2Input.value;
+            makeRequest(`/calc/multiply/${op1}/${op2}`, `${op1} × ${op2}`);
+        });
+        
+        document.getElementById('button-divide').addEventListener('click', () => {
+            const op1 = op1Input.value;
+            const op2 = op2Input.value;
+            makeRequest(`/calc/divide/${op1}/${op2}`, `${op1} ÷ ${op2}`);
+        });
+        
+        document.getElementById('button-power').addEventListener('click', () => {
+            const op1 = op1Input.value;
+            const op2 = op2Input.value;
+            makeRequest(`/calc/power/${op1}/${op2}`, `${op1}^${op2}`);
+        });
+        
+        document.getElementById('button-sqrt').addEventListener('click', () => {
+            const op1 = op1Input.value;
+            makeRequest(`/calc/sqrt/${op1}`, `√${op1}`);
+        });
+        
+        document.getElementById('button-log10').addEventListener('click', () => {
+            const op1 = op1Input.value;
+            makeRequest(`/calc/log10/${op1}`, `log10(${op1})`);
+        });
+    </script>
+</body>
+</html>
