@@ -4,8 +4,6 @@
 .PHONY: help build test-unit test-api test-e2e test-all clean
 
 # Variables
-PYTHON := .venv/bin/python
-PYTEST := .venv/bin/pytest
 REPORTS_DIR := tests-reports
 
 help:
@@ -19,28 +17,24 @@ help:
 
 build:
 	@echo "🔨 Construyendo el proyecto..."
-	python3 -m venv .venv
-	. .venv/bin/activate && pip install --upgrade pip
-	. .venv/bin/activate && pip install -r requirements.txt
-	docker compose build calc-api
-	@echo "✓ Build completado"
+	mkdir -p $(REPORTS_DIR)
+	docker compose build calc-api calc-web cypress-e2e
+	@echo "✓ Build completado - Todas las imágenes construidas"
 
 test-unit:
 	@echo "🧪 Ejecutando pruebas unitarias..."
 	mkdir -p $(REPORTS_DIR)
-	$(PYTEST) tests/unit/calc_test.py tests/unit/util_test.py \
-		-v \
-		--tb=short \
-		--junit-xml=$(REPORTS_DIR)/test-results-unit.xml
+	docker compose run --rm calc-api sh -c "python -m pytest /app/tests/unit/calc_test.py /app/tests/unit/util_test.py -v --tb=short --junit-xml=/app/tests-reports/test-results-unit.xml"
 	@echo "✓ Pruebas unitarias completadas"
 
 test-api:
 	@echo "🌐 Ejecutando pruebas de API..."
 	mkdir -p $(REPORTS_DIR)
-	$(PYTEST) tests/rest/api_test_local.py \
-		-v \
-		--tb=short \
-		--junit-xml=$(REPORTS_DIR)/test-results-api.xml
+	docker compose up -d calc-api
+	@echo "Esperando que la API esté lista..."
+	sleep 5
+	docker compose run --rm calc-api sh -c "python -m pytest /app/tests/rest/api_test_local.py -v --tb=short --junit-xml=/app/tests-reports/test-results-api.xml"
+	docker compose stop calc-api
 	@echo "✓ Pruebas de API completadas"
 
 test-e2e:
@@ -57,9 +51,8 @@ test-e2e:
 	rm -rf cypress-results
 	@echo "✓ Pruebas E2E completadas"
 
-test-all:
-	@echo "🚀 Ejecutando todas las pruebas..."
-	./run_tests.sh
+test-all: test-unit test-api test-e2e
+	@echo "🚀 ✓ Todas las pruebas completadas"
 
 clean:
 	@echo "🧹 Limpiando archivos generados..."
