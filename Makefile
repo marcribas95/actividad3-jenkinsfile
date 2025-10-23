@@ -45,7 +45,8 @@ test-api:
 	@echo "🌐 Ejecutando pruebas de API..."
 	mkdir -p $(RESULTS_DIR)
 	@echo "Limpiando contenedores previos..."
-	docker compose down 2>/dev/null || true
+	docker compose down --remove-orphans 2>/dev/null || true
+	docker rm -f calc-api 2>/dev/null || true
 	@echo "Asegurando que calc-api está ejecutándose..."
 	docker compose up -d calc-api
 	sleep 5
@@ -57,7 +58,8 @@ test-e2e:
 	@echo "🎭 Ejecutando pruebas E2E..."
 	mkdir -p $(RESULTS_DIR)
 	@echo "Limpiando contenedores previos..."
-	docker compose down 2>/dev/null || true
+	docker compose down --remove-orphans 2>/dev/null || true
+	docker rm -f calc-api calc-web cypress-e2e 2>/dev/null || true
 	@echo "Asegurando que todos los servicios están ejecutándose..."
 	docker compose up -d calc-api calc-web
 	sleep 10
@@ -78,7 +80,8 @@ ps:
 
 clean:
 	@echo "🧹 Limpiando recursos..."
-	docker compose down -v
+	docker compose down -v --remove-orphans
+	docker rm -f calc-api calc-web cypress-e2e 2>/dev/null || true
 	rm -rf $(RESULTS_DIR)
 	rm -rf .pytest_cache
 	rm -rf tests/e2e/cypress/screenshots
@@ -87,5 +90,6 @@ clean:
 
 clean-all: clean
 	@echo "🧹 Limpieza completa (incluyendo imágenes)..."
-	docker compose down -v --rmi local
+	docker compose down -v --rmi local --remove-orphans
+	docker rm -f calc-api calc-web cypress-e2e 2>/dev/null || true
 	@echo "✓ Limpieza completa terminada"
