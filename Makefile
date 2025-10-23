@@ -1,58 +1,63 @@
 # Makefile para el proyecto Calculator
-# Facilita la ejecución de tests y builds
+# Facilita la ejecución de tests y builds usando Docker directo
 
-.PHONY: help build test-unit test-api test-e2e test-all clean
+.PHONY: all build test-unit test-api test-e2e test-all clean run server interactive
 
 # Variables
-REPORTS_DIR := tests-reports
-
-help:
-	@echo "Comandos disponibles:"
-	@echo "  make build       - Construir el entorno y las imágenes Docker"
-	@echo "  make test-unit   - Ejecutar pruebas unitarias"
-	@echo "  make test-api    - Ejecutar pruebas de API"
-	@echo "  make test-e2e    - Ejecutar pruebas End-to-End"
-	@echo "  make test-all    - Ejecutar todas las pruebas"
-	@echo "  make clean       - Limpiar archivos generados"
+IMAGE_NAME := calculator-app
+RESULTS_DIR := tests-reports
 
 build:
-	@echo "🔨 Construyendo el proyecto..."
-	mkdir -p $(REPORTS_DIR)
-	docker compose build calc-api calc-web cypress-e2e
-	@echo "✓ Build completado - Todas las imágenes construidas"
+	@echo "🔨 Construyendo la imagen Docker..."
+	docker build -t $(IMAGE_NAME):latest .
+	@echo "✓ Build completado - Imagen $(IMAGE_NAME):latest construida"
+
+run:
+	docker run --rm --volume `pwd`:/opt/calc --env PYTHONPATH=/opt/calc -w /opt/calc $(IMAGE_NAME):latest python -B app/calc.py
+
+server:
+	docker run --rm --volume `pwd`:/opt/calc --name apiserver --env PYTHONPATH=/opt/calc --env FLASK_APP=app/api.py -p 5000:5000 -w /opt/calc $(IMAGE_NAME):latest flask run --host=0.0.0.0
+
+interactive:
+	docker run -ti --rm --volume `pwd`:/opt/calc --env PYTHONPATH=/opt/calc -w /opt/calc $(IMAGE_NAME):latest bash
 
 test-unit:
 	@echo "🧪 Ejecutando pruebas unitarias..."
-	mkdir -p $(REPORTS_DIR)
-	docker compose down -v 2>/dev/null || true
-	docker compose run --rm -v $$(pwd)/$(REPORTS_DIR):/app/tests-reports calc-api sh -c "python -m pytest /app/tests/unit/ -v --tb=short --junit-xml=/app/tests-reports/test-results-unit.xml"
+	mkdir -p $(RESULTS_DIR)
+	docker run --rm --volume `pwd`:/opt/calc --env PYTHONPATH=/opt/calc -w /opt/calc $(IMAGE_NAME):latest pytest /opt/calc/tests/unit/ --junit-xml=/opt/calc/$(RESULTS_DIR)/test-results-unit.xml -v || true
 	@echo "✓ Pruebas unitarias completadas"
 
 test-api:
 	@echo "🌐 Ejecutando pruebas de API..."
-	mkdir -p $(REPORTS_DIR)
-	docker compose down -v 2>/dev/null || true
-	docker compose up -d calc-api
+	mkdir -p $(RESULTS_DIR)
+	docker network create calc-test-api || true
+	docker stop apiserver || true
+	docker rm --force apiserver || true
+	docker run -d --rm --volume `pwd`:/opt/calc --network calc-test-api --env PYTHONPATH=/opt/calc --name apiserver --env FLASK_APP=app/api.py -p 5000:5000 -w /opt/calc $(IMAGE_NAME):latest flask run --host=0.0.0.0
 	@echo "Esperando que la API esté lista..."
 	sleep 5
-	docker compose run --rm -v $$(pwd)/$(REPORTS_DIR):/app/tests-reports calc-api sh -c "python -m pytest /app/tests/rest/ -v --tb=short --junit-xml=/app/tests-reports/test-results-api.xml"
-	docker compose stop calc-api
-	docker compose rm -f calc-api 2>/dev/null || true
+	docker run --rm --volume `pwd`:/opt/calc --network calc-test-api --env PYTHONPATH=/opt/calc --env BASE_URL=http://apiserver:5000/ -w /opt/calc $(IMAGE_NAME):latest pytest /opt/calc/tests/rest/ --junit-xml=/opt/calc/$(RESULTS_DIR)/test-results-api.xml -v || true
+	docker stop apiserver || true
+	docker rm --force apiserver || true
+	docker network rm calc-test-api || true
 	@echo "✓ Pruebas de API completadas"
 
 test-e2e:
 	@echo "🎭 Ejecutando pruebas E2E..."
-	mkdir -p $(REPORTS_DIR)
-	mkdir -p cypress-results
-	docker compose down -v 2>/dev/null || true
-	docker compose up -d calc-api calc-web
+	mkdir -p $(RESULTS_DIR)
+	docker network create calc-test-e2e || true
+	docker stop apiserver || true
+	docker rm --force apiserver || true
+	docker stop calc-web || true
+	docker rm --force calc-web || true
+	docker run -d --rm --volume `pwd`:/opt/calc --network calc-test-e2e --env PYTHONPATH=/opt/calc --name apiserver --env FLASK_APP=app/api.py -p 5000:5000 -w /opt/calc $(IMAGE_NAME):latest flask run --host=0.0.0.0
+	docker run -d --rm --volume `pwd`/web:/usr/share/nginx/html --volume `pwd`/web/nginx.conf:/etc/nginx/conf.d/default.conf --network calc-test-e2e --name calc-web -p 8000:80 nginx:alpine
 	@echo "Esperando servicios..."
 	sleep 10
-	docker compose run --rm -v $$(pwd)/cypress-results:/results cypress-e2e || true
-	[ -f cypress-results/cypress_result.xml ] && cp cypress-results/cypress_result.xml $(REPORTS_DIR)/test-results-e2e.xml || true
-	docker compose stop calc-api calc-web
-	docker compose rm -f calc-api calc-web 2>/dev/null || true
-	rm -rf cypress-results
+	docker run --rm --volume `pwd`/tests/e2e/cypress.json:/cypress.json --volume `pwd`/tests/e2e/cypress:/cypress --volume `pwd`/$(RESULTS_DIR):/results --network calc-test-e2e cypress/included:15.5.0 --browser chrome || true
+	docker rm --force apiserver || true
+	docker rm --force calc-web || true
+	docker network rm calc-test-e2e || true
 	@echo "✓ Pruebas E2E completadas"
 
 test-all: test-unit test-api test-e2e
@@ -60,11 +65,12 @@ test-all: test-unit test-api test-e2e
 
 clean:
 	@echo "🧹 Limpiando archivos generados..."
-	rm -rf $(REPORTS_DIR)
-	rm -rf .venv
+	rm -rf $(RESULTS_DIR)
 	rm -rf .pytest_cache
-	rm -rf cypress-results
-	rm -rf tests/e2e/cypress/screenshots
-	rm -rf tests/e2e/cypress/videos
-	docker compose down -v 2>/dev/null || true
+	docker stop apiserver 2>/dev/null || true
+	docker rm --force apiserver 2>/dev/null || true
+	docker stop calc-web 2>/dev/null || true
+	docker rm --force calc-web 2>/dev/null || true
+	docker network rm calc-test-api 2>/dev/null || true
+	docker network rm calc-test-e2e 2>/dev/null || true
 	@echo "✓ Limpieza completada"
