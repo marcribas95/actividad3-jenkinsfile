@@ -24,30 +24,34 @@ build:
 test-unit:
 	@echo "🧪 Ejecutando pruebas unitarias..."
 	mkdir -p $(REPORTS_DIR)
-	docker compose run --rm calc-api sh -c "python -m pytest /app/tests/unit/ -v --tb=short --junit-xml=/app/tests-reports/test-results-unit.xml"
+	docker compose down -v 2>/dev/null || true
+	docker compose run --rm -v $$(pwd)/$(REPORTS_DIR):/app/tests-reports calc-api sh -c "python -m pytest /app/tests/unit/ -v --tb=short --junit-xml=/app/tests-reports/test-results-unit.xml"
 	@echo "✓ Pruebas unitarias completadas"
 
 test-api:
 	@echo "🌐 Ejecutando pruebas de API..."
 	mkdir -p $(REPORTS_DIR)
+	docker compose down -v 2>/dev/null || true
 	docker compose up -d calc-api
 	@echo "Esperando que la API esté lista..."
 	sleep 5
-	docker compose run --rm calc-api sh -c "python -m pytest /app/tests/rest/ -v --tb=short --junit-xml=/app/tests-reports/test-results-api.xml"
+	docker compose run --rm -v $$(pwd)/$(REPORTS_DIR):/app/tests-reports calc-api sh -c "python -m pytest /app/tests/rest/ -v --tb=short --junit-xml=/app/tests-reports/test-results-api.xml"
 	docker compose stop calc-api
+	docker compose rm -f calc-api 2>/dev/null || true
 	@echo "✓ Pruebas de API completadas"
 
 test-e2e:
 	@echo "🎭 Ejecutando pruebas E2E..."
 	mkdir -p $(REPORTS_DIR)
 	mkdir -p cypress-results
+	docker compose down -v 2>/dev/null || true
 	docker compose up -d calc-api calc-web
 	@echo "Esperando servicios..."
 	sleep 10
 	docker compose run --rm -v $$(pwd)/cypress-results:/results cypress-e2e || true
 	[ -f cypress-results/cypress_result.xml ] && cp cypress-results/cypress_result.xml $(REPORTS_DIR)/test-results-e2e.xml || true
 	docker compose stop calc-api calc-web
-	docker compose rm -f calc-api calc-web
+	docker compose rm -f calc-api calc-web 2>/dev/null || true
 	rm -rf cypress-results
 	@echo "✓ Pruebas E2E completadas"
 
