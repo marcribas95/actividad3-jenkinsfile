@@ -15,6 +15,8 @@ build:
 
 start:
 	@echo "🚀 Iniciando servicios con docker compose..."
+	@echo "Limpiando contenedores previos si existen..."
+	docker compose down 2>/dev/null || true
 	docker compose up -d calc-api calc-web
 	@echo "Esperando que los servicios estén listos..."
 	sleep 5
@@ -41,9 +43,11 @@ test-unit:
 test-api:
 	@echo "🌐 Ejecutando pruebas de API..."
 	mkdir -p $(RESULTS_DIR)
+	@echo "Limpiando contenedores previos..."
+	docker compose down 2>/dev/null || true
 	@echo "Asegurando que calc-api está ejecutándose..."
 	docker compose up -d calc-api
-	sleep 3
+	sleep 5
 	@echo "Ejecutando tests contra el servicio..."
 	docker compose run --rm -e BASE_URL=http://calc-api:5000/ calc-api pytest /app/tests/rest/ -v --tb=short --junit-xml=/app/tests-reports/test-results-api.xml
 	@echo "✓ Pruebas de API completadas"
@@ -51,9 +55,11 @@ test-api:
 test-e2e:
 	@echo "🎭 Ejecutando pruebas E2E..."
 	mkdir -p $(RESULTS_DIR)
+	@echo "Limpiando contenedores previos..."
+	docker compose down 2>/dev/null || true
 	@echo "Asegurando que todos los servicios están ejecutándose..."
 	docker compose up -d calc-api calc-web
-	sleep 5
+	sleep 10
 	@echo "Ejecutando tests de Cypress..."
 	docker compose run --rm cypress-e2e || true
 	@echo "✓ Pruebas E2E completadas"
