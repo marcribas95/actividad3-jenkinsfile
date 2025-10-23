@@ -1,0 +1,50 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.venv/
+venv/
+ENV/
+env/
+*.egg-info/
+dist/
+build/
+
+# Pytest
+.pytest_cache/
+.coverage
+htmlcov/
+*.cover
+
+# Tests reports
+tests-reports/
+cypress-results/
+
+# Cypress
+tests/e2e/cypress/screenshots/
+tests/e2e/cypress/videos/
+tests/e2e/node_modules/
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Docker
+*.log
+
+# Jenkins
+.jenkins/
+
+# Temporary files
+*.tmp
+*.bak
+*.orig
