@@ -1,5 +1,6 @@
 version: '3.8'
 
+services:
   calc-api:
     build: .
     container_name: calc-api
