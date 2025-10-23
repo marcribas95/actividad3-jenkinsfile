@@ -1,0 +1,201 @@
+pipeline {
+    agent any
+    
+    environment {
+        // Variables de entorno del proyecto
+        GIT_REPO = 'https://github.com/marcribas95/actividad3-jenkinsfile.git'
+        GIT_BRANCH = 'main'
+        PROJECT_DIR = "${WORKSPACE}"
+        REPORTS_DIR = "${WORKSPACE}/tests-reports"
+    }
+    
+    options {
+        // Mantener los últimos 10 builds
+        buildDiscarder(logRotator(numToKeepStr: '10'))
+        // Timeout general del pipeline
+        timeout(time: 30, unit: 'MINUTES')
+        // Timestamps en el log
+        timestamps()
+        // No permitir builds concurrentes
+        disableConcurrentBuilds()
+    }
+    
+    stages {
+        stage('🔍 Checkout') {
+            steps {
+                script {
+                    echo '════════════════════════════════════════════════════════'
+                    echo '║  DESCARGANDO CÓDIGO DEL REPOSITORIO'
+                    echo '════════════════════════════════════════════════════════'
+                }
+                
+                // Descargar código del repositorio Git
+                checkout([
+                    $class: 'GitSCM',
+                    branches: [[name: "*/${GIT_BRANCH}"]],
+                    userRemoteConfigs: [[url: "${GIT_REPO}"]]
+                ])
+                
+                script {
+                    echo '✓ Código descargado exitosamente'
+                    echo "✓ Branch: ${GIT_BRANCH}"
+                    echo "✓ Workspace: ${WORKSPACE}"
+                }
+            }
+        }
+        
+        stage('🔧 Setup') {
+            steps {
+                script {
+                    echo '════════════════════════════════════════════════════════'
+                    echo '║  CONFIGURANDO ENTORNO'
+                    echo '════════════════════════════════════════════════════════'
+                }
+                
+                // Configurar entorno virtual e instalar dependencias
+                sh '''
+                    make setup
+                '''
+                
+                script {
+                    echo '✓ Entorno configurado correctamente'
+                }
+            }
+        }
+        
+        stage('🧪 Test Unitarios') {
+            steps {
+                script {
+                    echo '════════════════════════════════════════════════════════'
+                    echo '║  EJECUTANDO PRUEBAS UNITARIAS'
+                    echo '════════════════════════════════════════════════════════'
+                }
+                
+                // Ejecutar pruebas unitarias
+                sh '''
+                    make test-unit
+                '''
+                
+                script {
+                    echo '✓ Pruebas unitarias completadas'
+                }
+            }
+        }
+        
+        stage('🌐 Test API') {
+            steps {
+                script {
+                    echo '════════════════════════════════════════════════════════'
+                    echo '║  EJECUTANDO PRUEBAS DE API'
+                    echo '════════════════════════════════════════════════════════'
+                }
+                
+                // Ejecutar pruebas de API
+                sh '''
+                    make test-api
+                '''
+                
+                script {
+                    echo '✓ Pruebas de API completadas'
+                }
+            }
+        }
+        
+        stage('🚀 Test E2E') {
+            steps {
+                script {
+                    echo '════════════════════════════════════════════════════════'
+                    echo '║  EJECUTANDO PRUEBAS END-TO-END'
+                    echo '════════════════════════════════════════════════════════'
+                }
+                
+                // Ejecutar pruebas e2e con Docker
+                sh '''
+                    make test-e2e
+                '''
+                
+                script {
+                    echo '✓ Pruebas E2E completadas'
+                }
+            }
+        }
+        
+        stage('📊 Análisis de Resultados') {
+            steps {
+                script {
+                    echo '════════════════════════════════════════════════════════'
+                    echo '║  ANALIZANDO RESULTADOS DE PRUEBAS'
+                    echo '════════════════════════════════════════════════════════'
+                }
+                
+                // Publicar reportes de pruebas JUnit
+                junit(
+                    testResults: 'tests-reports/test-results-*.xml',
+                    allowEmptyResults: false,
+                    skipPublishingChecks: false,
+                    keepLongStdio: true
+                )
+                
+                script {
+                    echo '✓ Reportes de pruebas publicados'
+                }
+            }
+        }
+    }
+    
+    post {
+        always {
+            script {
+                echo '════════════════════════════════════════════════════════'
+                echo '║  LIMPIEZA Y FINALIZACIÓN'
+                echo '════════════════════════════════════════════════════════'
+            }
+            
+            // Detener servicios Docker si están corriendo
+            sh '''
+                make docker-down || true
+            '''
+            
+            // Archivar logs y reportes
+            archiveArtifacts(
+                artifacts: 'tests-reports/*.xml, tests-reports/*.log',
+                allowEmptyArchive: true,
+                fingerprint: true
+            )
+            
+            script {
+                echo '✓ Artefactos archivados'
+            }
+        }
+        
+        success {
+            script {
+                echo ''
+                echo '╔════════════════════════════════════════════════════════════╗'
+                echo '║  ✓ BUILD EXITOSO - TODAS LAS PRUEBAS PASARON              ║'
+                echo '╚════════════════════════════════════════════════════════════╝'
+                echo ''
+            }
+        }
+        
+        failure {
+            script {
+                echo ''
+                echo '╔════════════════════════════════════════════════════════════╗'
+                echo '║  ✗ BUILD FALLIDO - ALGUNAS PRUEBAS FALLARON               ║'
+                echo '╚════════════════════════════════════════════════════════════╝'
+                echo ''
+            }
+        }
+        
+        unstable {
+            script {
+                echo ''
+                echo '╔════════════════════════════════════════════════════════════╗'
+                echo '║  ⚠ BUILD INESTABLE - REVISAR RESULTADOS                   ║'
+                echo '╚════════════════════════════════════════════════════════════╝'
+                echo ''
+            }
+        }
+    }
+}
