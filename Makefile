@@ -16,7 +16,8 @@ build:
 start:
 	@echo "🚀 Iniciando servicios con docker compose..."
 	@echo "Limpiando contenedores previos si existen..."
-	docker compose down 2>/dev/null || true
+	docker compose down --remove-orphans 2>/dev/null || true
+	docker rm -f calc-api calc-web 2>/dev/null || true
 	docker compose up -d calc-api calc-web
 	@echo "Esperando que los servicios estén listos..."
 	sleep 5
