@@ -93,3 +93,24 @@ clean-all: clean
 	docker compose down -v --rmi local --remove-orphans
 	docker rm -f calc-api calc-web cypress-e2e 2>/dev/null || true
 	@echo "✓ Limpieza completa terminada"
+
+clean-jenkins:
+	@echo "🧹 Limpieza completa para Jenkins (elimina TODO)..."
+	@echo "Deteniendo todos los contenedores del proyecto..."
+	docker compose down -v --rmi all --remove-orphans 2>/dev/null || true
+	@echo "Eliminando contenedores por nombre..."
+	docker rm -f calc-api calc-web cypress-e2e 2>/dev/null || true
+	@echo "Eliminando contenedores huérfanos..."
+	docker container prune -f 2>/dev/null || true
+	@echo "Eliminando imágenes sin usar..."
+	docker image prune -f 2>/dev/null || true
+	@echo "Eliminando volúmenes sin usar..."
+	docker volume prune -f 2>/dev/null || true
+	@echo "Eliminando networks sin usar..."
+	docker network prune -f 2>/dev/null || true
+	@echo "Limpiando directorios de reportes..."
+	rm -rf $(RESULTS_DIR)
+	rm -rf .pytest_cache
+	rm -rf tests/e2e/cypress/screenshots
+	rm -rf tests/e2e/cypress/videos
+	@echo "✓ Limpieza Jenkins completada"
