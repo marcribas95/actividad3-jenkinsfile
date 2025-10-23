@@ -1,18 +1,21 @@
 FROM python:3.6-slim
 
-# Crear estructura de directorios
-RUN mkdir -p /app/tests-reports
+# Establecer directorio de trabajo
+WORKDIR /opt/calc
 
-WORKDIR /app
+# Instalar dependencias del sistema
+RUN apt-get update && apt-get install -y \
+    gcc \
+    && rm -rf /var/lib/apt/lists/*
 
-# Instalar dependencias
-COPY requirements.txt ./
-RUN pip install -r requirements.txt
+# Copiar requirements y instalar dependencias Python
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
 
-# Copiar código de la aplicación
-COPY app ./app
-
-# Copiar tests
-COPY tests ./tests
+# El código se montará como volumen, no se copia aquí
+# Esto permite desarrollo en vivo y testing
 
 EXPOSE 5000
+
+# Comando por defecto (puede ser sobrescrito)
+CMD ["python", "-B", "app/calc.py"]
