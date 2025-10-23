@@ -16,9 +16,11 @@ build:
 start:
 	@echo "🚀 Iniciando servicios con docker compose..."
 	@echo "Limpiando contenedores previos si existen..."
-	docker compose down --remove-orphans 2>/dev/null || true
-	docker rm -f calc-api calc-web 2>/dev/null || true
-	docker compose up -d calc-api calc-web
+	-docker compose down --remove-orphans -v
+	-docker rm -f calc-api calc-web
+	-docker volume prune -f
+	@echo "Iniciando servicios..."
+	docker compose up -d --force-recreate calc-api calc-web
 	@echo "Esperando que los servicios estén listos..."
 	sleep 5
 	@echo "✓ Servicios iniciados"
@@ -45,10 +47,10 @@ test-api:
 	@echo "🌐 Ejecutando pruebas de API..."
 	mkdir -p $(RESULTS_DIR)
 	@echo "Limpiando contenedores previos..."
-	docker compose down --remove-orphans 2>/dev/null || true
-	docker rm -f calc-api 2>/dev/null || true
+	-docker compose down --remove-orphans -v
+	-docker rm -f calc-api
 	@echo "Asegurando que calc-api está ejecutándose..."
-	docker compose up -d calc-api
+	docker compose up -d --force-recreate calc-api
 	sleep 5
 	@echo "Ejecutando tests contra el servicio..."
 	docker compose run --rm -e BASE_URL=http://calc-api:5000/ calc-api pytest /app/tests/rest/ -v --tb=short --junit-xml=/app/tests-reports/test-results-api.xml
@@ -58,10 +60,10 @@ test-e2e:
 	@echo "🎭 Ejecutando pruebas E2E..."
 	mkdir -p $(RESULTS_DIR)
 	@echo "Limpiando contenedores previos..."
-	docker compose down --remove-orphans 2>/dev/null || true
-	docker rm -f calc-api calc-web cypress-e2e 2>/dev/null || true
+	-docker compose down --remove-orphans -v
+	-docker rm -f calc-api calc-web cypress-e2e
 	@echo "Asegurando que todos los servicios están ejecutándose..."
-	docker compose up -d calc-api calc-web
+	docker compose up -d --force-recreate calc-api calc-web
 	sleep 10
 	@echo "Ejecutando tests de Cypress..."
 	docker compose run --rm cypress-e2e || true
@@ -80,8 +82,8 @@ ps:
 
 clean:
 	@echo "🧹 Limpiando recursos..."
-	docker compose down -v --remove-orphans
-	docker rm -f calc-api calc-web cypress-e2e 2>/dev/null || true
+	-docker compose down -v --remove-orphans
+	-docker rm -f calc-api calc-web cypress-e2e
 	rm -rf $(RESULTS_DIR)
 	rm -rf .pytest_cache
 	rm -rf tests/e2e/cypress/screenshots
@@ -90,24 +92,24 @@ clean:
 
 clean-all: clean
 	@echo "🧹 Limpieza completa (incluyendo imágenes)..."
-	docker compose down -v --rmi local --remove-orphans
-	docker rm -f calc-api calc-web cypress-e2e 2>/dev/null || true
+	-docker compose down -v --rmi local --remove-orphans
+	-docker rm -f calc-api calc-web cypress-e2e
 	@echo "✓ Limpieza completa terminada"
 
 clean-jenkins:
 	@echo "🧹 Limpieza completa para Jenkins (elimina TODO)..."
 	@echo "Deteniendo todos los contenedores del proyecto..."
-	docker compose down -v --rmi all --remove-orphans 2>/dev/null || true
+	-docker compose down -v --rmi all --remove-orphans
 	@echo "Eliminando contenedores por nombre..."
-	docker rm -f calc-api calc-web cypress-e2e 2>/dev/null || true
+	-docker rm -f calc-api calc-web cypress-e2e
 	@echo "Eliminando contenedores huérfanos..."
-	docker container prune -f 2>/dev/null || true
+	-docker container prune -f
 	@echo "Eliminando imágenes sin usar..."
-	docker image prune -f 2>/dev/null || true
+	-docker image prune -f
 	@echo "Eliminando volúmenes sin usar..."
-	docker volume prune -f 2>/dev/null || true
+	-docker volume prune -f
 	@echo "Eliminando networks sin usar..."
-	docker network prune -f 2>/dev/null || true
+	-docker network prune -f
 	@echo "Limpiando directorios de reportes..."
 	rm -rf $(RESULTS_DIR)
 	rm -rf .pytest_cache
