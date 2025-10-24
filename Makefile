@@ -41,8 +41,7 @@ test-unit: setup-dirs
 	@echo "$(BLUE)╚════════════════════════════════════════════════════════════╝$(NC)\n"
 	@echo "$(YELLOW)→$(NC) Ejecutando pruebas unitarias de calc_test.py y util_test.py..."
 	@docker compose run --rm calc-api pytest \
-		tests/unit/calc_test.py \
-		tests/unit/util_test.py \
+		tests/unit \
 		-v \
 		--tb=short \
 		--junit-xml=$(UNIT_REPORT) 2>&1 | tee $(UNIT_LOG) || true
@@ -58,18 +57,12 @@ test-api: setup-dirs
 	@echo "\n$(BLUE)╔════════════════════════════════════════════════════════════╗$(NC)"
 	@echo "$(BLUE)║$(NC) EJECUTANDO PRUEBAS DE API"
 	@echo "$(BLUE)╚════════════════════════════════════════════════════════════╝$(NC)\n"
-	@echo "$(YELLOW)→$(NC) Iniciando servicios necesarios..."
-	@docker compose up -d calc-api
-	@echo "$(YELLOW)→$(NC) Esperando que el servidor esté listo..."
-	@sleep 5
 	@echo "$(YELLOW)→$(NC) Ejecutando pruebas de API..."
 	@docker compose run --rm calc-api pytest \
-		tests/rest/api_test_local.py \
+		tests/rest/*_test*.py \
 		-v \
 		--tb=short \
 		--junit-xml=$(API_REPORT) 2>&1 | tee $(API_LOG) || true
-	@echo "$(YELLOW)→$(NC) Deteniendo servicios..."
-	@docker compose stop calc-api
 	@if [ -f $(API_REPORT) ]; then \
 		echo "$(GREEN)✓$(NC) Pruebas de API completadas"; \
 		echo "$(BLUE)ℹ$(NC) Reporte: $(API_REPORT)"; \
