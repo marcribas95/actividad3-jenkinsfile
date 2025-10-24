@@ -83,7 +83,7 @@ test-e2e: setup-dirs
 	@echo "$(YELLOW)→$(NC) Esperando 10 segundos para que los servicios se inicialicen..."
 	@sleep 10
 	@echo "$(YELLOW)→$(NC) Ejecutando pruebas e2e con Cypress..."
-	@docker compose run --rm cypress-e2e 2>&1 | tee $(E2E_LOG) || true
+	@PWD=$$(pwd) docker compose run --rm cypress-e2e 2>&1 | tee $(E2E_LOG) || true
 	@echo "$(YELLOW)→$(NC) Deteniendo servicios de docker-compose..."
 	@docker compose stop calc-api calc-web
 	@docker compose rm -f calc-api calc-web cypress-e2e
