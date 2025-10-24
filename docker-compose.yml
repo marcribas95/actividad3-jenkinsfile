@@ -7,13 +7,15 @@ services:
     ports:
       - "5000:5000"
     volumes:
-      - ./tests-reports:/app/tests-reports
+      - .:/app
+    working_dir: /app
     command: python -m flask run --host=0.0.0.0
     networks:
       - calc
     environment:
       - FLASK_APP=app.api
       - FLASK_ENV=development
+      - PYTHONPATH=/app
 
   calc-web:
     image: nginx:alpine
@@ -34,6 +36,7 @@ services:
     working_dir: /e2e
     volumes:
       - ./tests/e2e:/e2e
+      - ./tests/e2e/results:/results
     networks:
       - calc
     depends_on:

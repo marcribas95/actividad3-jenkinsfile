@@ -5,9 +5,6 @@ RUN apt-get update && apt-get install -y \
     gcc \
     && rm -rf /var/lib/apt/lists/*
 
-# Crear estructura de directorios
-RUN mkdir -p /app/tests-reports
-
 # Establecer directorio de trabajo
 WORKDIR /app
 
@@ -15,14 +12,11 @@ WORKDIR /app
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copiar código de la aplicación
-COPY app ./app
+# Crear directorios necesarios
+RUN mkdir -p /app/tests-reports
 
-# Copiar tests
-COPY tests ./tests
-
-# Copiar web (para tener todo disponible)
-COPY web ./web
+# Configurar PYTHONPATH
+ENV PYTHONPATH=/app
 
 # Exponer puerto Flask
 EXPOSE 5000
