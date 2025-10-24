@@ -1,0 +1,15 @@
+FROM jenkins/jenkins:lts
+
+# Cambiar a usuario root para instalar plugins
+USER root
+
+# Instalar plugins necesarios
+RUN jenkins-plugin-cli --plugins \
+    ssh-slaves \
+    git \
+    workflow-aggregator \
+    docker-workflow \
+    blueocean
+
+# Volver al usuario jenkins
+USER jenkins
