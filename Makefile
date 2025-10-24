@@ -75,6 +75,8 @@ test-e2e: setup-dirs
 	@echo "\n$(BLUE)╔════════════════════════════════════════════════════════════╗$(NC)"
 	@echo "$(BLUE)║$(NC) EJECUTANDO PRUEBAS E2E (End-to-End)"
 	@echo "$(BLUE)╚════════════════════════════════════════════════════════════╝$(NC)\n"
+	@echo "$(YELLOW)→$(NC) Limpiando contenedores previos..."
+	@docker compose rm -f calc-api calc-web cypress-e2e 2>/dev/null || true
 	@echo "$(YELLOW)→$(NC) Iniciando servicios necesarios con docker-compose..."
 	@docker compose up -d calc-api calc-web
 	@echo "$(GREEN)✓$(NC) Servicios iniciados correctamente"
@@ -109,7 +111,8 @@ test-all: test-unit test-api test-e2e
 # Detener y limpiar todos los contenedores (requerido por Jenkinsfile)
 docker-down:
 	@echo "$(YELLOW)→$(NC) Deteniendo todos los contenedores..."
-	@docker compose down -v || true
+	@docker compose down -v --remove-orphans || true
+	@docker compose rm -f -s -v calc-api calc-web cypress-e2e 2>/dev/null || true
 	@echo "$(GREEN)✓$(NC) Contenedores detenidos"
 
 # Limpiar contenedores y redes
