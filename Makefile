@@ -40,7 +40,7 @@ test-unit: setup-dirs
 	@echo "$(BLUE)║$(NC) EJECUTANDO PRUEBAS UNITARIAS"
 	@echo "$(BLUE)╚════════════════════════════════════════════════════════════╝$(NC)\n"
 	@echo "$(YELLOW)→$(NC) Ejecutando pruebas unitarias de calc_test.py y util_test.py..."
-	@docker compose run --rm calc-api pytest \
+	@docker compose run --rm -v "$(PWD)":/app calc-api pytest \
 		tests/unit \
 		-v \
 		--tb=short \
@@ -58,7 +58,7 @@ test-api: setup-dirs
 	@echo "$(BLUE)║$(NC) EJECUTANDO PRUEBAS DE API"
 	@echo "$(BLUE)╚════════════════════════════════════════════════════════════╝$(NC)\n"
 	@echo "$(YELLOW)→$(NC) Ejecutando pruebas de API..."
-	@docker compose run --rm calc-api pytest \
+	@docker compose run --rm -v "$(PWD)":/app calc-api pytest \
 		tests/rest/*_test*.py \
 		-v \
 		--tb=short \
