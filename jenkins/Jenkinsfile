@@ -80,6 +80,17 @@ pipeline {
                     echo '✓ Pruebas unitarias completadas'
                 }
             }
+            post {
+                always {
+                    // Publicar resultados de pruebas unitarias
+                    junit(
+                        testResults: 'tests-reports/test-results-unit-*.xml',
+                        allowEmptyResults: true,
+                        skipPublishingChecks: true,
+                        keepLongStdio: true
+                    )
+                }
+            }
         }
         
         stage('🌐 Test API') {
@@ -97,6 +108,17 @@ pipeline {
                 
                 script {
                     echo '✓ Pruebas de API completadas'
+                }
+            }
+            post {
+                always {
+                    // Publicar resultados de pruebas de API
+                    junit(
+                        testResults: 'tests-reports/test-results-api-*.xml',
+                        allowEmptyResults: true,
+                        skipPublishingChecks: true,
+                        keepLongStdio: true
+                    )
                 }
             }
         }
@@ -118,26 +140,15 @@ pipeline {
                     echo '✓ Pruebas E2E completadas'
                 }
             }
-        }
-        
-        stage('📊 Análisis de Resultados') {
-            steps {
-                script {
-                    echo '════════════════════════════════════════════════════════'
-                    echo '║  ANALIZANDO RESULTADOS DE PRUEBAS'
-                    echo '════════════════════════════════════════════════════════'
-                }
-                
-                // Publicar reportes de pruebas JUnit
-                junit(
-                    testResults: 'tests-reports/test-results-*.xml',
-                    allowEmptyResults: false,
-                    skipPublishingChecks: false,
-                    keepLongStdio: true
-                )
-                
-                script {
-                    echo '✓ Reportes de pruebas publicados'
+            post {
+                always {
+                    // Publicar resultados de pruebas E2E
+                    junit(
+                        testResults: 'tests-reports/test-results-e2e-*.xml',
+                        allowEmptyResults: true,
+                        skipPublishingChecks: true,
+                        keepLongStdio: true
+                    )
                 }
             }
         }
@@ -185,6 +196,35 @@ pipeline {
                 echo '║  ✗ BUILD FALLIDO - ALGUNAS PRUEBAS FALLARON               ║'
                 echo '╚════════════════════════════════════════════════════════════╝'
                 echo ''
+                
+                // Mostrar información del correo que se enviaría
+                echo "📧 INFORMACIÓN DEL CORREO:"
+                echo "   Trabajo: ${env.JOB_NAME}"
+                echo "   Número de ejecución: ${env.BUILD_NUMBER}"
+                echo "   URL: ${env.BUILD_URL}"
+                
+                // Envío de correo electrónico (comentado para no configurar servidor SMTP)
+                // Descomentar cuando se configure el servidor de correo en Jenkins
+                /*
+                emailext(
+                    subject: "❌ Build Fallido - ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+                    body: """
+                        <html>
+                        <body>
+                            <h2>Build Fallido</h2>
+                            <p><strong>Trabajo:</strong> ${env.JOB_NAME}</p>
+                            <p><strong>Número de ejecución:</strong> ${env.BUILD_NUMBER}</p>
+                            <p><strong>URL del build:</strong> <a href="${env.BUILD_URL}">${env.BUILD_URL}</a></p>
+                            <p><strong>Estado:</strong> FAILURE</p>
+                            <hr>
+                            <p>Por favor, revisa los logs y resultados de las pruebas para más detalles.</p>
+                        </body>
+                        </html>
+                    """,
+                    to: 'admin@example.com',
+                    mimeType: 'text/html'
+                )
+                */
             }
         }
         
