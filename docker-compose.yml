@@ -43,7 +43,7 @@ services:
       - calc-api
     environment:
       - CYPRESS_baseUrl=http://calc-web
-    entrypoint: cypress run
+    entrypoint: ["cypress", "run", "--config-file", "cypress.config.js"]
 
 networks:
   calc:
