@@ -83,16 +83,28 @@ test-e2e: setup-dirs
 	@echo "$(YELLOW)→$(NC) Esperando 10 segundos para que los servicios se inicialicen..."
 	@sleep 10
 	@echo "$(YELLOW)→$(NC) Ejecutando pruebas e2e con Cypress..."
-	@docker compose run --rm cypress-e2e 2>&1 | tee $(E2E_LOG) || true
-	@echo "$(YELLOW)→$(NC) Deteniendo servicios de docker-compose..."
-	@docker compose stop calc-api calc-web
-	@docker compose rm -f calc-api calc-web cypress-e2e
-	@if [ -f tests/e2e/results/cypress_result.xml ]; then \
+	@docker compose run --rm cypress-e2e 2>&1 | tee $(E2E_LOG); \
+	CYPRESS_EXIT=$$?; \
+	echo "$(YELLOW)→$(NC) Deteniendo servicios de docker-compose..."; \
+	docker compose stop calc-api calc-web; \
+	docker compose rm -f calc-api calc-web cypress-e2e; \
+	if [ -f tests/e2e/results/cypress_result.xml ]; then \
 		cp tests/e2e/results/cypress_result.xml $(E2E_REPORT); \
 		echo "$(GREEN)✓$(NC) Reporte e2e copiado a: $(E2E_REPORT)"; \
+		FAILURES=$$(grep -oP 'failures="\K[0-9]+' $(E2E_REPORT) | head -1); \
+		if [ "$$FAILURES" != "" ] && [ $$FAILURES -gt 0 ]; then \
+			echo "$(RED)✗$(NC) Se detectaron $$FAILURES pruebas E2E fallidas"; \
+			exit 1; \
+		fi; \
 	else \
 		echo "$(RED)✗$(NC) No se encontró el reporte XML de Cypress"; \
-	fi
+		exit 1; \
+	fi; \
+	if [ $$CYPRESS_EXIT -ne 0 ]; then \
+		echo "$(RED)✗$(NC) Cypress terminó con código de salida: $$CYPRESS_EXIT"; \
+		exit $$CYPRESS_EXIT; \
+	fi; \
+	echo "$(GREEN)✓$(NC) Todas las pruebas E2E pasaron correctamente"
 
 # Ejecutar todas las pruebas
 test-all: test-unit test-api test-e2e
