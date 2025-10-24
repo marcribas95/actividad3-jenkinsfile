@@ -34,8 +34,8 @@ services:
     container_name: cypress-e2e
     working_dir: /e2e
     volumes:
-      - ./tests/e2e:/e2e
-      - ./tests/e2e/results:/results
+      - ${PWD:-.}/tests/e2e:/e2e
+      - ${PWD:-.}/tests/e2e/results:/results
     networks:
       - calc
     depends_on:
