@@ -30,9 +30,9 @@ setup: setup-dirs build
 
 # Construir imagen Docker
 build:
-	@echo "$(BLUE)→$(NC) Construyendo imagen Docker..."
-	@docker compose build calc-api
-	@echo "$(GREEN)✓$(NC) Imagen construida exitosamente"
+	@echo "$(BLUE)→$(NC) Construyendo imágenes Docker..."
+	@docker compose build calc-api calc-web
+	@echo "$(GREEN)✓$(NC) Imágenes construidas exitosamente"
 
 # Ejecutar pruebas unitarias
 test-unit: setup-dirs

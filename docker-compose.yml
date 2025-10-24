@@ -18,13 +18,12 @@ services:
       - PYTHONPATH=/app
 
   calc-web:
-    image: nginx:alpine
+    build:
+      context: ./web
+      dockerfile: Dockerfile
     container_name: calc-web
     ports:
       - "8000:80"
-    volumes:
-      - ./web/index.html:/usr/share/nginx/html/index.html:ro
-      - ./web/nginx.conf:/etc/nginx/conf.d/default.conf:ro
     networks:
       - calc
     depends_on:
