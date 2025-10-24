@@ -30,11 +30,12 @@ services:
       - calc-api
 
   cypress-e2e:
-    image: cypress/included:latest
+    build:
+      context: ./tests/e2e
+      dockerfile: Dockerfile
     container_name: cypress-e2e
     working_dir: /e2e
     volumes:
-      - ${PWD:-.}/tests/e2e:/e2e
       - ${PWD:-.}/tests/e2e/results:/results
     networks:
       - calc
