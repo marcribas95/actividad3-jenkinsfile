@@ -40,11 +40,11 @@ test-unit: setup-dirs
 	@echo "$(BLUE)║$(NC) EJECUTANDO PRUEBAS UNITARIAS"
 	@echo "$(BLUE)╚════════════════════════════════════════════════════════════╝$(NC)\n"
 	@echo "$(YELLOW)→$(NC) Ejecutando pruebas unitarias de calc_test.py y util_test.py..."
-	@docker compose run --rm -v "$(PWD)":/app calc-api pytest \
-		tests/unit \
+	@docker compose run --rm calc-api pytest \
+		/app/tests/unit \
 		-v \
 		--tb=short \
-		--junit-xml=$(UNIT_REPORT) 2>&1 | tee $(UNIT_LOG) || true
+		--junit-xml=/app/$(UNIT_REPORT) 2>&1 | tee $(UNIT_LOG) || true
 	@if [ -f $(UNIT_REPORT) ]; then \
 		echo "$(GREEN)✓$(NC) Pruebas unitarias completadas"; \
 		echo "$(BLUE)ℹ$(NC) Reporte: $(UNIT_REPORT)"; \
@@ -58,11 +58,11 @@ test-api: setup-dirs
 	@echo "$(BLUE)║$(NC) EJECUTANDO PRUEBAS DE API"
 	@echo "$(BLUE)╚════════════════════════════════════════════════════════════╝$(NC)\n"
 	@echo "$(YELLOW)→$(NC) Ejecutando pruebas de API..."
-	@docker compose run --rm -v "$(PWD)":/app calc-api pytest \
-		tests/rest/*_test*.py \
+	@docker compose run --rm calc-api pytest \
+		/app/tests/rest/api_test_local.py \
 		-v \
 		--tb=short \
-		--junit-xml=$(API_REPORT) 2>&1 | tee $(API_LOG) || true
+		--junit-xml=/app/$(API_REPORT) 2>&1 | tee $(API_LOG) || true
 	@if [ -f $(API_REPORT) ]; then \
 		echo "$(GREEN)✓$(NC) Pruebas de API completadas"; \
 		echo "$(BLUE)ℹ$(NC) Reporte: $(API_REPORT)"; \
