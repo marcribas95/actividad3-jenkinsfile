@@ -1,15 +1,24 @@
 FROM jenkins/jenkins:lts
 
-# Cambiar a usuario root para instalar plugins
 USER root
 
-# Instalar plugins necesarios
-RUN jenkins-plugin-cli --plugins \
-    ssh-slaves \
+# Instalar make y otras herramientas necesarias
+RUN apt-get update && apt-get install -y \
+    make \
+    curl \
     git \
-    workflow-aggregator \
-    docker-workflow \
-    blueocean
+    && rm -rf /var/lib/apt/lists/*
 
-# Volver al usuario jenkins
+# Instalar Docker CLI
+RUN curl -fsSL https://get.docker.com -o get-docker.sh && \
+    sh get-docker.sh && \
+    rm get-docker.sh
+
+# Instalar Docker Compose
+RUN curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose && \
+    chmod +x /usr/local/bin/docker-compose
+
+# Agregar usuario jenkins al grupo docker
+RUN usermod -aG docker jenkins
+
 USER jenkins
