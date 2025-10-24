@@ -12,6 +12,10 @@ WORKDIR /app
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
+# Copiar código de la aplicación y tests
+COPY app/ /app/app/
+COPY tests/ /app/tests/
+
 # Crear directorios necesarios
 RUN mkdir -p /app/tests-reports
 
