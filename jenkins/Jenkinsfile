@@ -21,7 +21,7 @@ pipeline {
     }
     
     stages {
-        stage('🔍 Checkout') {
+        stage('Checkout') {
             steps {
                 script {
                     echo '════════════════════════════════════════════════════════'
@@ -44,7 +44,7 @@ pipeline {
             }
         }
         
-        stage('🔧 Setup') {
+        stage('Setup') {
             steps {
                 script {
                     echo '════════════════════════════════════════════════════════'
@@ -63,7 +63,7 @@ pipeline {
             }
         }
         
-        stage('🧪 Test Unitarios') {
+        stage('Test Unitarios') {
             steps {
                 script {
                     echo '════════════════════════════════════════════════════════'
@@ -93,7 +93,7 @@ pipeline {
             }
         }
         
-        stage('🌐 Test API') {
+        stage('Test API') {
             steps {
                 script {
                     echo '════════════════════════════════════════════════════════'
@@ -123,7 +123,7 @@ pipeline {
             }
         }
         
-        stage('🚀 Test E2E') {
+        stage('Test E2E') {
             steps {
                 script {
                     echo '════════════════════════════════════════════════════════'
@@ -198,13 +198,12 @@ pipeline {
                 echo ''
                 
                 // Mostrar información del correo que se enviaría
-                echo "📧 INFORMACIÓN DEL CORREO:"
+                echo "INFORMACIÓN DEL CORREO:"
                 echo "   Trabajo: ${env.JOB_NAME}"
                 echo "   Número de ejecución: ${env.BUILD_NUMBER}"
                 echo "   URL: ${env.BUILD_URL}"
                 
                 // Envío de correo electrónico (comentado para no configurar servidor SMTP)
-                // Descomentar cuando se configure el servidor de correo en Jenkins
                 /*
                 emailext(
                     subject: "❌ Build Fallido - ${env.JOB_NAME} #${env.BUILD_NUMBER}",
